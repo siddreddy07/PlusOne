@@ -10,7 +10,7 @@ import { seats, users } from "./schema.js";
 
 // Run with:  npm run seed
 // It EMPTIES every table first, then fills them with demo data.
-// Login for everyone: password123
+// Login for everyone: password123 (except the demo attendee: sidd@email.com / 12345678)
 
 async function seed() {
   if (process.env.NODE_ENV === "production") {
@@ -47,6 +47,9 @@ async function seed() {
   for (let i = 1; i <= 10; i++) {
     attendees.push(await createUser(`Attendee ${i}`, `attendee${i}@example.com`, "password123"));
   }
+
+  // the demo attendee used by the one click demo button on the login screen
+  await createUser("Demo Attendee", "sidd@email.com", "12345678");
 
   // 4. two events: 10 x 12 = 120 seats, and 6 x 10 = 60 seats
   console.log("Creating events...");
@@ -111,9 +114,10 @@ async function seed() {
     }
   }
 
-  console.log(`Done: 11 users, 2 events (120 + 60 seats), ${bookingNumber} bookings (${cancelled} cancelled).`);
+  console.log(`Done: 12 users, 2 events (120 + 60 seats), ${bookingNumber} bookings (${cancelled} cancelled).`);
   console.log("Organizer login: organizer@example.com / password123");
   console.log("Attendee login:  attendee1@example.com / password123");
+  console.log("Demo attendee:   sidd@email.com / 12345678");
 }
 
 seed()

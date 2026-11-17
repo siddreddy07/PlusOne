@@ -43,6 +43,12 @@ const TEXT = {
   },
 }
 
+// Ready-made accounts for the one click demo buttons (also listed in the README).
+const DEMO = {
+  attendee: { email: "sidd@email.com", password: "12345678" },
+  organizer: { email: "organizer@example.com", password: "password123" },
+}
+
 type Errors = { name?: string; email?: string; password?: string }
 
 export function AuthForm({ mode }: { mode: Mode }) {
@@ -101,6 +107,25 @@ export function AuthForm({ mode }: { mode: Mode }) {
 
       await useUserStore.getState().loadUser()
       router.push(mode === "organizer" ? "/organizer" : "/")
+    } catch (error) {
+      setFormError(
+        error instanceof Error
+          ? error.message
+          : "Something went wrong. Please try again."
+      )
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  // One click log in with a ready-made account, so anyone can try the app.
+  async function handleDemo(kind: "attendee" | "organizer") {
+    setFormError("")
+    setBusy(true)
+    try {
+      await login(DEMO[kind].email, DEMO[kind].password)
+      await useUserStore.getState().loadUser()
+      router.push(kind === "organizer" ? "/organizer" : "/")
     } catch (error) {
       setFormError(
         error instanceof Error
@@ -186,6 +211,34 @@ export function AuthForm({ mode }: { mode: Mode }) {
                 {formError}
               </p>
             </form>
+
+            {mode !== "signup" && (
+              <div className="mt-6 border-t pt-6">
+                <p className="text-sm text-muted-foreground">Just looking? Skip the form.</p>
+                <div className="mt-3 flex flex-col gap-3">
+                  {mode === "login" && (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      disabled={busy}
+                      onClick={() => handleDemo("attendee")}
+                      className="h-12 w-full text-base"
+                    >
+                      Log in as demo attendee
+                    </Button>
+                  )}
+                  <Button
+                    type="button"
+                    variant="outline"
+                    disabled={busy}
+                    onClick={() => handleDemo("organizer")}
+                    className="h-12 w-full text-base"
+                  >
+                    Log in as demo organizer
+                  </Button>
+                </div>
+              </div>
+            )}
 
             <div className="mt-6 flex flex-col gap-3 border-t pt-6 text-sm text-muted-foreground">
               {mode === "login" && (
