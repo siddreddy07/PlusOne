@@ -8,8 +8,8 @@ import { SeatArt } from "@/components/SeatArt"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { login, register } from "@/lib/api"
-import { saveLogin } from "@/lib/auth"
+import { login, logoutRequest, register } from "@/lib/api"
+import { useUserStore } from "@/store/userStore"
 
 // One form for three screens: attendee log in, attendee sign up, organizer log in.
 type Mode = "login" | "signup" | "organizer"
@@ -93,13 +93,14 @@ export function AuthForm({ mode }: { mode: Mode }) {
           : await login(email, password)
 
       if (mode === "organizer" && result.user.role !== "organizer") {
+        await logoutRequest() // remove the cookie we just got
         setFormError(
           "This account is not an organizer. Use the attendee log in."
         )
         return
       }
 
-      saveLogin(result.token, result.user)
+      await useUserStore.getState().loadUser()
       router.push("/")
     } catch (error) {
       setFormError(

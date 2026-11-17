@@ -1,33 +1,22 @@
 "use client"
 
-import { useCallback, useEffect, useState } from "react"
+import { useEffect } from "react"
 
 import { EventCard } from "@/components/EventCard"
 import { Navbar } from "@/components/Navbar"
 import { Button } from "@/components/ui/button"
 import { Skeleton } from "@/components/ui/skeleton"
-import { getEvents, type EventItem } from "@/lib/api"
 import { useUser } from "@/lib/useUser"
+import { useEventsStore } from "@/store/eventsStore"
 
 // Home: every event, with how many seats are still free.
 export default function HomePage() {
   const user = useUser()
-  const [events, setEvents] = useState<EventItem[] | null>(null)
-  const [error, setError] = useState("")
-
-  const loadEvents = useCallback(async () => {
-    try {
-      setEvents(await getEvents())
-      setError("")
-    } catch (error) {
-      setError(error instanceof Error ? error.message : "Could not load events.")
-    }
-  }, [])
+  const { events, error, loadEvents } = useEventsStore()
 
   useEffect(() => {
     if (user) {
       // load the events once the user is known
-      // eslint-disable-next-line react-hooks/set-state-in-effect
       loadEvents()
     }
   }, [user, loadEvents])

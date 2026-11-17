@@ -1,26 +1,25 @@
 "use client"
 
 import { useRouter } from "next/navigation"
-import { useEffect, useState } from "react"
+import { useEffect } from "react"
 
-import { getUser, type User } from "./auth"
+import { useUserStore } from "@/store/userStore"
 
 // Returns the logged-in user. If nobody is logged in, sends the browser to /login.
-// Returns null until the browser has checked (so a page can show nothing for a moment).
+// Returns null until the browser has checked.
 export function useUser() {
   const router = useRouter()
-  const [user, setUser] = useState<User | null>(null)
+  const user = useUserStore((state) => state.user)
+  const checked = useUserStore((state) => state.checked)
+  const loadUser = useUserStore((state) => state.loadUser)
 
   useEffect(() => {
-    const saved = getUser()
-    if (saved) {
-      // localStorage only exists in the browser, so we read it after the page loads
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      setUser(saved)
-    } else {
+    if (!checked) {
+      loadUser()
+    } else if (!user) {
       router.replace("/login")
     }
-  }, [router])
+  }, [checked, user, loadUser, router])
 
   return user
 }

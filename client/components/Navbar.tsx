@@ -4,14 +4,15 @@ import Link from "next/link"
 import { useRouter } from "next/navigation"
 
 import { Button } from "@/components/ui/button"
-import { logout, type User } from "@/lib/auth"
+import type { User } from "@/lib/auth"
+import { useUserStore } from "@/store/userStore"
 
 // The bar at the top of every logged-in page.
 export function Navbar({ user }: { user: User | null }) {
   const router = useRouter()
 
-  function handleLogout() {
-    logout()
+  async function handleLogout() {
+    await useUserStore.getState().logOut()
     router.push("/login")
   }
 
