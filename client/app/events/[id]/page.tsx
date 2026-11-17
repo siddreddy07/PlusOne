@@ -21,7 +21,7 @@ export default function EventPage() {
   const eventId = Number(params.id)
 
   const { event, seats, settings, selected, hold, confirmed, error, busy } = useSeatStore()
-  const { load, refreshSeats, toggleSeat, buy, confirm, release, expire, reset } = useSeatStore()
+  const { load, refreshSeats, toggleSeat, holdPicked, confirm, release, expire, reset } = useSeatStore()
 
   const isOrganizer = user?.role === "organizer"
   const role = user?.role
@@ -52,7 +52,7 @@ export default function EventPage() {
   const heldSeats = (seats ?? []).filter((seat) => seat.mine && seat.status === "held")
   const confirmedSeats = (seats ?? []).filter((seat) => seat.mine && seat.status === "booked")
 
-  const handleBuy = () => buy(eventId)
+  const handleBuy = () => holdPicked(eventId)
   const handleConfirm = () => confirm(eventId)
   const handleRelease = () => release(eventId)
 
@@ -118,18 +118,18 @@ export default function EventPage() {
                 </>
               ) : hold ? (
                 <>
-                  <h2 className="text-3xl leading-none font-bold">Seats held</h2>
-                  <p className="mt-3 text-muted-foreground">Confirm before the time runs out.</p>
+                  <h2 className="text-3xl leading-none font-bold">Payment</h2>
+                  <p className="mt-3 text-muted-foreground">Choose the result of the payment.</p>
                   <div className="mt-5">
                     <HoldTimer expiresAt={hold.holdExpiresAt} onExpire={handleExpire} />
                   </div>
                   <p className="mt-5 text-lg">{heldSeats.map(seatName).join(", ")}</p>
                   <div className="mt-6 flex flex-col gap-3">
                     <Button onClick={handleConfirm} disabled={busy} className="h-12 w-full text-base">
-                      Confirm booking
+                      Payment success
                     </Button>
                     <Button variant="outline" onClick={handleRelease} disabled={busy} className="h-12 w-full text-base">
-                      Release seats
+                      Cancel payment
                     </Button>
                   </div>
                 </>
