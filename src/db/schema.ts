@@ -5,6 +5,7 @@ import {
   integer,
   pgEnum,
   pgTable,
+  primaryKey,
   text,
   timestamp,
   uniqueIndex,
@@ -98,6 +99,22 @@ export const seats = pgTable(
     index("seats_event_idx").on(table.eventId),
     index("seats_booking_idx").on(table.bookingId),
   ],
+);
+
+// ---------- booking_seats ----------
+// Remembers which seats were in which booking, FOREVER.
+// (seats.booking_id is cleared when a booking is cancelled/expired, so history needs this.)
+export const bookingSeats = pgTable(
+  "booking_seats",
+  {
+    bookingId: integer("booking_id")
+      .notNull()
+      .references(() => bookings.id),
+    seatId: integer("seat_id")
+      .notNull()
+      .references(() => seats.id),
+  },
+  (table) => [primaryKey({ columns: [table.bookingId, table.seatId] })],
 );
 
 // ---------- settings ----------

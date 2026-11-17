@@ -2,6 +2,7 @@ import cors from "cors";
 import express from "express";
 import { checkDb } from "./config/db.js";
 import { authRoutes } from "./routes/authRoutes.js";
+import { bookingRoutes } from "./routes/bookingRoutes.js";
 import { eventRoutes } from "./routes/eventRoutes.js";
 import { settingsRoutes } from "./routes/settingsRoutes.js";
 
@@ -23,3 +24,4 @@ app.get("/health", async (_req, res) => {
 app.use("/auth", authRoutes);
 app.use("/settings", settingsRoutes);
 app.use("/events", eventRoutes);
+app.use("/bookings", bookingRoutes);
