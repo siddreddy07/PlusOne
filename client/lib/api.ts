@@ -35,3 +35,21 @@ export function login(email: string, password: string): Promise<LoginResult> {
 export function register(name: string, email: string, password: string): Promise<LoginResult> {
   return request("/auth/register", "POST", { name, email, password });
 }
+
+// One event as the list shows it. `date` is text like "2026-12-14T21:40:00.000Z".
+export type EventItem = {
+  id: number;
+  name: string;
+  description: string;
+  date: string;
+  venue: string;
+  rowCount: number;
+  seatsPerRow: number;
+  totalSeats: number;
+  availableSeats: number;
+};
+
+export async function getEvents(): Promise<EventItem[]> {
+  const data = await request("/events");
+  return data.events;
+}
