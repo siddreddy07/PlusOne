@@ -19,23 +19,20 @@ export async function findUserById(id: number) {
 
 // New accounts are ALWAYS attendees. Organizers are created in the database / seed.
 export async function createUser(name: string, email: string, password: string) {
-  const passwordHash = await hashPassword(password);
-
-  try {
-    const rows = await db
-      .insert(users)
-      .values({ name, email, passwordHash, role: "attendee" })
-      .returning(safeColumns);
-    return rows[0]!;
-  } catch (error) {
-    // 23505 = unique violation in Postgres (email already used).
-    // Drizzle wraps the Postgres error, so the code is inside error.cause.
-    const pgCode = (error as { cause?: { code?: string } }).cause?.code;
-    if (pgCode === "23505") {
-      throw makeHttpError(409, "Email is already registered");
-    }
-    throw error;
+  // 1. Is the email already used?
+  const existing = await db.select().from(users).where(eq(users.email, email));
+  if (existing.length > 0) {
+    throw makeHttpError(409, "Email is already registered");
   }
+
+  // 2. Save the new user
+  const passwordHash = await hashPassword(password);
+  const rows = await db
+    .insert(users)
+    .values({ name, email, passwordHash, role: "attendee" })
+    .returning(safeColumns);
+
+  return rows[0]!;
 }
 
 // Check email + password. Same message for both mistakes, so nobody can guess emails.
