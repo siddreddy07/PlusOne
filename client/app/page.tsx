@@ -1,19 +1,48 @@
-import { Button } from "@/components/ui/button"
+"use client"
 
-export default function Page() {
+import { useRouter } from "next/navigation"
+import { useEffect, useState } from "react"
+
+import { Button } from "@/components/ui/button"
+import { getUser, logout, type User } from "@/lib/auth"
+
+// Temporary home screen: it only proves you are logged in.
+// The events list replaces it in the next step.
+export default function HomePage() {
+  const router = useRouter()
+  const [user, setUser] = useState<User | null>(null)
+
+  useEffect(() => {
+    const saved = getUser()
+    if (saved) {
+      // localStorage only exists in the browser, so we read it after the page loads
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setUser(saved)
+    } else {
+      router.replace("/login")
+    }
+  }, [router])
+
+  function handleLogout() {
+    logout()
+    router.push("/login")
+  }
+
+  if (!user) {
+    return null
+  }
+
   return (
-    <div className="flex min-h-svh p-6">
-      <div className="flex max-w-md min-w-0 flex-col gap-4 text-sm leading-loose">
-        <div>
-          <h1 className="font-medium">Project ready!</h1>
-          <p>You may now add components and start building.</p>
-          <p>We&apos;ve already added the button component for you.</p>
-          <Button className="mt-2">Button</Button>
-        </div>
-        <div className="font-mono text-xs text-muted-foreground">
-          (Press <kbd>d</kbd> to toggle dark mode)
-        </div>
+    <main className="mx-auto flex min-h-svh max-w-xl flex-col justify-center gap-4 px-6">
+      <h1 className="text-5xl leading-none font-bold">Hi, {user.name}</h1>
+      <p className="text-muted-foreground">
+        You are logged in as {user.role === "organizer" ? "an organizer" : "an attendee"} ({user.email}).
+      </p>
+      <div>
+        <Button variant="outline" onClick={handleLogout} className="h-11 px-5 text-base">
+          Log out
+        </Button>
       </div>
-    </div>
+    </main>
   )
 }
