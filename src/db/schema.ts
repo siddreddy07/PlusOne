@@ -47,6 +47,8 @@ export const events = pgTable(
 
 // ---------- bookings ----------
 // status: held -> confirmed | cancelled | expired
+export const bookingStatus = pgEnum("booking_status", ["held", "confirmed", "cancelled", "expired"]);
+
 export const bookings = pgTable(
   "bookings",
   {
@@ -57,15 +59,11 @@ export const bookings = pgTable(
     eventId: integer("event_id")
       .notNull()
       .references(() => events.id),
-    status: text().notNull().default("held"),
+    status: bookingStatus().notNull().default("held"),
     holdExpiresAt: timestamp("hold_expires_at", { withTimezone: true }).notNull(),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   },
   (table) => [
-    check(
-      "bookings_status_check",
-      sql`${table.status} in ('held', 'confirmed', 'cancelled', 'expired')`,
-    ),
     index("bookings_user_idx").on(table.userId),
     // used by the "release expired holds" query
     index("bookings_status_expiry_idx").on(table.status, table.holdExpiresAt),
@@ -74,6 +72,8 @@ export const bookings = pgTable(
 
 // ---------- seats ----------
 // ONE ROW PER SEAT. The double-booking check is an UPDATE on this table.
+export const seatStatus = pgEnum("seat_status", ["available", "held", "booked"]);
+
 export const seats = pgTable(
   "seats",
   {
@@ -83,13 +83,12 @@ export const seats = pgTable(
       .references(() => events.id),
     rowLabel: text("row_label").notNull(), // A, B, C ...
     seatNumber: integer("seat_number").notNull(), // 1, 2, 3 ...
-    status: text().notNull().default("available"),
+    status: seatStatus().notNull().default("available"),
     bookingId: integer("booking_id").references(() => bookings.id),
   },
   (table) => [
     // the same seat can never exist twice in an event
     uniqueIndex("seats_unique_position").on(table.eventId, table.rowLabel, table.seatNumber),
-    check("seats_status_check", sql`${table.status} in ('available', 'held', 'booked')`),
     // a seat is available ONLY when nobody owns it
     check(
       "seats_owner_check",
