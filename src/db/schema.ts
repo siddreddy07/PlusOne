@@ -3,6 +3,7 @@ import {
   check,
   index,
   integer,
+  pgEnum,
   pgTable,
   text,
   timestamp,
@@ -11,20 +12,16 @@ import {
 
 // ---------- users ----------
 // role is either 'attendee' or 'organizer'
-export const users = pgTable(
-  "users",
-  {
-    id: integer().primaryKey().generatedAlwaysAsIdentity(),
-    name: text().notNull(),
-    email: text().notNull().unique(),
-    passwordHash: text("password_hash").notNull(),
-    role: text().notNull().default("attendee"),
-    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
-  },
-  (table) => [
-    check("users_role_check", sql`${table.role} in ('attendee', 'organizer')`),
-  ],
-);
+export const userRole = pgEnum("user_role", ["attendee", "organizer"]);
+
+export const users = pgTable("users", {
+  id: integer().primaryKey().generatedAlwaysAsIdentity(),
+  name: text().notNull(),
+  email: text().notNull().unique(),
+  passwordHash: text("password_hash").notNull(),
+  role: userRole().notNull().default("attendee"),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+});
 
 // ---------- events ----------
 export const events = pgTable(
