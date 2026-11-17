@@ -71,7 +71,8 @@ describe("expired holds", () => {
     expect(seat.status).toBe("available");
     expect(seat.bookingId).toBeNull();
     expect((await getSeat(seatIds[1]!)).status).toBe("available");
-    expect((await getBooking(booking.id)).status).toBe("expired");
+    // an unpaid hold that ran out leaves no booking behind
+    expect(await getBooking(booking.id)).toBeUndefined();
   });
 
   it("a released seat can be held by someone else", async () => {

@@ -129,6 +129,8 @@ export async function confirmBooking(userId: number, bookingId: number, now: Dat
 
 // ------------------------------------------------------------------
 // 3. CANCEL a booking  (frees the seats)
+//    - still held (payment not finished): the booking is deleted, nothing is kept
+//    - confirmed (already paid): it stays in the history as 'cancelled'
 // ------------------------------------------------------------------
 export async function cancelBooking(userId: number, bookingId: number) {
   const found = await db
@@ -145,23 +147,40 @@ export async function cancelBooking(userId: number, bookingId: number) {
   }
 
   return db.transaction(async (tx) => {
-    const updated = await tx
+    // First try the unpaid case. This only matches a booking that is STILL held.
+    const released = await tx
       .update(bookings)
       .set({ status: "cancelled" })
-      .where(and(eq(bookings.id, bookingId), inArray(bookings.status, ["held", "confirmed"])))
-      .returning();
+      .where(and(eq(bookings.id, bookingId), eq(bookings.status, "held")))
+      .returning({ id: bookings.id });
 
-    if (updated.length === 0) {
+    if (released.length > 0) {
+      await tx
+        .update(seats)
+        .set({ status: "available", bookingId: null })
+        .where(eq(seats.bookingId, bookingId));
+      await tx.delete(bookingSeats).where(eq(bookingSeats.bookingId, bookingId));
+      await tx.delete(bookings).where(eq(bookings.id, bookingId));
+      return { id: bookingId, status: "released" };
+    }
+
+    // Otherwise it was paid: keep it, marked as cancelled.
+    const cancelled = await tx
+      .update(bookings)
+      .set({ status: "cancelled" })
+      .where(and(eq(bookings.id, bookingId), eq(bookings.status, "confirmed")))
+      .returning({ id: bookings.id, status: bookings.status });
+
+    if (cancelled.length === 0) {
       throw new Error("This booking can no longer be cancelled");
     }
 
-    // give the seats back
     await tx
       .update(seats)
       .set({ status: "available", bookingId: null })
       .where(eq(seats.bookingId, bookingId));
 
-    return updated[0]!;
+    return cancelled[0]!;
   });
 }
 
