@@ -1,6 +1,7 @@
 import type { Request, Response } from "express";
 import { z } from "zod";
 import { getNow } from "../helpers/clock.js";
+import { releaseExpiredHolds } from "../services/holdService.js";
 import {
   createEvent,
   getEventById,
@@ -27,6 +28,8 @@ const eventSchema = z.object({
 
 export async function getEvents(_req: Request, res: Response) {
   try {
+    // free expired holds first, so the available counts are correct
+    await releaseExpiredHolds(getNow());
     const allEvents = await listEvents();
     return res.json({ events: allEvents });
   } catch (error) {

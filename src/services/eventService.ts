@@ -1,4 +1,4 @@
-import { asc, eq } from "drizzle-orm";
+import { asc, eq, sql } from "drizzle-orm";
 import { db } from "../config/db.js";
 import { bookings, events, seats } from "../db/schema.js";
 import { makeSeatList } from "../helpers/seatGrid.js";
@@ -13,8 +13,27 @@ export type EventInput = {
   seatsPerRow: number;
 };
 
+// All events, each with totalSeats and availableSeats for the event cards.
 export async function listEvents() {
-  return db.select().from(events).orderBy(asc(events.date));
+  const allEvents = await db.select().from(events).orderBy(asc(events.date));
+
+  const counts = await db
+    .select({
+      eventId: seats.eventId,
+      total: sql<number>`count(*)::int`,
+      available: sql<number>`count(*) filter (where ${seats.status} = 'available')::int`,
+    })
+    .from(seats)
+    .groupBy(seats.eventId);
+
+  return allEvents.map((event) => {
+    const count = counts.find((c) => c.eventId === event.id);
+    return {
+      ...event,
+      totalSeats: count?.total ?? 0,
+      availableSeats: count?.available ?? 0,
+    };
+  });
 }
 
 export async function getEventById(id: number) {
