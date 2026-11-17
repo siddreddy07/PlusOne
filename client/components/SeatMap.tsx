@@ -28,7 +28,8 @@ export function SeatMap({ seats, selected, locked, onToggle }: Props) {
       />
       <p className="mt-2 mb-8 text-center text-sm tracking-widest text-muted-foreground uppercase">Stage</p>
 
-      <div className="flex flex-col gap-2">
+      <div className="overflow-x-auto py-2">
+      <div className="flex flex-col gap-2" style={{ minWidth: `${seatsPerRow * 32 + 56}px` }}>
         {Object.entries(rows).map(([label, rowSeats]) => (
           <div key={label} className="flex items-center gap-3">
             <span className="w-5 text-center text-sm text-muted-foreground" aria-hidden="true">
@@ -55,6 +56,7 @@ export function SeatMap({ seats, selected, locked, onToggle }: Props) {
             </span>
           </div>
         ))}
+      </div>
       </div>
     </div>
   )
@@ -102,9 +104,9 @@ function SeatButton({
         seat.status === "booked" && isMine ? "ring-2 ring-primary/40 ring-offset-2 ring-offset-background" : ""
       }`}
     >
-      {/* the seat's own name, like D3, on seats that are yours (too small to read on a phone) */}
+      {/* the seat's own name, like D3, on seats that are yours (small, so the map scrolls sideways on a phone) */}
       {red && (
-        <span className="hidden text-[11px] leading-none font-bold text-primary-foreground sm:block">{name}</span>
+        <span className="text-[10px] leading-none font-bold text-primary-foreground sm:text-[11px]">{name}</span>
       )}
     </button>
   )

@@ -169,3 +169,10 @@
     transition: none;
   }
 }
+
+/* Keyboard focus: links show a ring too (buttons and fields already do). */
+a:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 3px;
+  border-radius: 4px;
+}

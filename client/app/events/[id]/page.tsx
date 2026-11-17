@@ -83,7 +83,7 @@ export default function EventPage() {
           </p>
         ) : (
           <div className="mt-10 grid items-start gap-6 lg:grid-cols-[1fr_340px]">
-            <section className="rounded-lg border bg-card p-5 sm:p-8" aria-label="Seat map">
+            <section className="min-w-0 rounded-lg border bg-card p-5 sm:p-8" aria-label="Seat map">
               <ul className="mb-8 flex flex-wrap justify-center gap-x-6 gap-y-2 text-sm text-muted-foreground">
                 <li className="flex items-center gap-2">
                   <span className="size-4 rounded-t-md rounded-b-sm bg-[var(--seat-free-1)]" /> Available
@@ -108,7 +108,7 @@ export default function EventPage() {
               )}
             </section>
 
-            <aside className="rounded-lg border bg-card p-6 lg:sticky lg:top-6" aria-label="Your booking">
+            <aside className="min-w-0 rounded-lg border bg-card p-6 lg:sticky lg:top-6" aria-label="Your booking">
               {isOrganizer ? (
                 <>
                   <h2 className="text-3xl leading-none font-bold">Seat map</h2>
