@@ -24,6 +24,11 @@ export function Navbar({ user }: { user: User | null }) {
         </Link>
 
         <div className="flex items-center gap-5">
+          {user?.role === "organizer" && (
+            <Link href="/organizer" className="link-draw text-sm">
+              Organizer
+            </Link>
+          )}
           {user?.role === "attendee" && (
             <Link href="/bookings" className="link-draw text-sm">
               My bookings

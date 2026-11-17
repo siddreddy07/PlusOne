@@ -124,3 +124,22 @@ export async function getMyBookings(): Promise<MyBooking[]> {
   const data = await request("/bookings/mine");
   return data.bookings;
 }
+
+// What the organizer types in the "New event" form.
+export type NewEvent = {
+  name: string;
+  description: string;
+  date: string; // like "2030-01-01T18:00:00.000Z"
+  venue: string;
+  rowCount: number;
+  seatsPerRow: number;
+};
+
+export async function createEvent(input: NewEvent): Promise<EventItem> {
+  const data = await request("/events", "POST", input);
+  return data.event;
+}
+
+export function updateSetting(key: keyof Settings, value: number) {
+  return request(`/settings/${key}`, "PUT", { value });
+}
