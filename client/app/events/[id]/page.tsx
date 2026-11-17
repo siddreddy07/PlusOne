@@ -33,10 +33,10 @@ export default function EventPage() {
     return reset
   }, [role, eventId, load, reset])
 
-  // other people book too, so look at the map again every 10 seconds
+  // other people book too, so look at the map again every 20 seconds
   useEffect(() => {
     if (!role) return
-    const timer = setInterval(() => refreshSeats(eventId), 10000)
+    const timer = setInterval(() => refreshSeats(eventId), 20000)
     return () => clearInterval(timer)
   }, [role, eventId, refreshSeats])
 
