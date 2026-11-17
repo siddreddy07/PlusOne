@@ -1,9 +1,10 @@
 import { Router } from "express";
-import { login, me, register } from "../controllers/authController.js";
+import { login, logout, me, register } from "../controllers/authController.js";
 import { requireAuth } from "../middleware/requireAuth.js";
 
 export const authRoutes = Router();
 
 authRoutes.post("/register", register);
 authRoutes.post("/login", login);
+authRoutes.post("/logout", logout);
 authRoutes.get("/me", requireAuth, me);

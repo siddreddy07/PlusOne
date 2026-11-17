@@ -1,3 +1,4 @@
+import cookieParser from "cookie-parser";
 import cors from "cors";
 import express from "express";
 import { checkDb } from "./config/db.js";
@@ -8,7 +9,10 @@ import { settingsRoutes } from "./routes/settingsRoutes.js";
 
 export const app = express();
 
-app.use(cors());
+// credentials: true lets the browser send and receive cookies.
+// The origin must be the exact frontend address (not "*").
+app.use(cors({ origin: process.env.CLIENT_URL ?? "http://localhost:3000", credentials: true }));
+app.use(cookieParser());
 app.use(express.json());
 
 app.get("/health", async (_req, res) => {

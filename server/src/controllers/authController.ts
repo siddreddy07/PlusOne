@@ -1,6 +1,6 @@
 import type { Request, Response } from "express";
 import { z } from "zod";
-import { makeToken } from "../helpers/token.js";
+import { clearTokenCookie, makeToken, setTokenCookie } from "../helpers/token.js";
 import { createUser, findUserById, loginUser } from "../services/authService.js";
 
 const registerSchema = z.object({
@@ -26,7 +26,8 @@ export async function register(req: Request, res: Response) {
     const { name, email, password } = input.data;
     const user = await createUser(name, email, password);
     const token = makeToken({ userId: user.id, role: user.role });
-    return res.status(201).json({ user, token });
+    setTokenCookie(res, token);
+    return res.status(201).json({ user });
   } catch (error) {
     console.log("register error:", error.message);
     return res.status(409).json({ error: error.message });
@@ -43,11 +44,17 @@ export async function login(req: Request, res: Response) {
     const { email, password } = input.data;
     const user = await loginUser(email, password);
     const token = makeToken({ userId: user.id, role: user.role });
-    return res.json({ user, token });
+    setTokenCookie(res, token);
+    return res.json({ user });
   } catch (error) {
     console.log("login error:", error.message);
     return res.status(401).json({ error: error.message });
   }
+}
+
+export function logout(_req: Request, res: Response) {
+  clearTokenCookie(res);
+  return res.json({ ok: true });
 }
 
 export async function me(req: Request, res: Response) {
