@@ -45,6 +45,25 @@ export async function getSeat(seatId: number) {
   return rows[0]!;
 }
 
+export async function countBookings() {
+  const rows = await db.select({ n: sql<number>`count(*)::int` }).from(bookings);
+  return rows[0]!.n;
+}
+
+// Turns Promise.allSettled results into: the bookings that won, and the error messages of losers.
+export function splitResults(results: PromiseSettledResult<{ id: number }>[]) {
+  const winners: { id: number }[] = [];
+  const errors: string[] = [];
+  for (const result of results) {
+    if (result.status === "fulfilled") {
+      winners.push(result.value);
+    } else {
+      errors.push(result.reason.message);
+    }
+  }
+  return { winners, errors };
+}
+
 export async function getBooking(bookingId: number) {
   const rows = await db.select().from(bookings).where(eq(bookings.id, bookingId));
   return rows[0]!;
