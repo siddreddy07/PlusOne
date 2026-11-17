@@ -1,6 +1,8 @@
 import cors from "cors";
 import express from "express";
 import { checkDb } from "./config/db.js";
+import { errorHandler } from "./middleware/errorHandler.js";
+import { authRoutes } from "./routes/authRoutes.js";
 
 export const app = express();
 
@@ -16,3 +18,8 @@ app.get("/health", async (_req, res) => {
     res.status(500).json({ status: "error", db: "unreachable" });
   }
 });
+
+app.use("/auth", authRoutes);
+
+// must stay LAST
+app.use(errorHandler);
