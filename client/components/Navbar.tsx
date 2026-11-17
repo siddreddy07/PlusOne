@@ -24,6 +24,11 @@ export function Navbar({ user }: { user: User | null }) {
         </Link>
 
         <div className="flex items-center gap-5">
+          {user?.role === "attendee" && (
+            <Link href="/bookings" className="link-draw text-sm">
+              My bookings
+            </Link>
+          )}
           {user && <span className="hidden text-sm text-muted-foreground sm:block">{user.name}</span>}
           <Button variant="outline" onClick={handleLogout} className="h-10 px-4 text-sm">
             Log out

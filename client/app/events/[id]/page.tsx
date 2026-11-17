@@ -138,8 +138,8 @@ export default function EventPage() {
                   <h2 className="text-3xl leading-none font-bold">Booking confirmed</h2>
                   <p className="mt-3 text-muted-foreground">Your seats are booked.</p>
                   <p className="mt-5 text-lg">{confirmedSeats.map(seatName).join(", ")}</p>
-                  <Link href="/" className="link-draw mt-6 inline-block">
-                    Back to events
+                  <Link href="/bookings" className="link-draw mt-6 inline-block">
+                    View my bookings
                   </Link>
                 </>
               ) : (
