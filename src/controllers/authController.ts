@@ -50,9 +50,9 @@ export async function login(req: Request, res: Response) {
   }
 }
 
-export async function me(_req: Request, res: Response) {
+export async function me(req: Request, res: Response) {
   try {
-    const user = await findUserById(res.locals.user.userId);
+    const user = await findUserById(req.user.userId);
     if (!user) {
       return res.status(401).json({ error: "Please log in" });
     }

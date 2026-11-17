@@ -60,7 +60,7 @@ export async function addEvent(req: Request, res: Response) {
       return res.status(400).json({ error: input.error.issues[0]?.message });
     }
 
-    const event = await createEvent(res.locals.user.userId, input.data, getNow());
+    const event = await createEvent(req.user.userId, input.data, getNow());
     return res.status(201).json({ event });
   } catch (error) {
     console.log("addEvent error:", error.message);
