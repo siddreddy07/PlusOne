@@ -28,6 +28,7 @@ type SeatStore = {
   load: (eventId: number, isAttendee: boolean) => Promise<void>
   refreshSeats: (eventId: number) => Promise<void>
   toggleSeat: (seatId: number) => void
+  buy: (eventId: number) => Promise<void>
   holdPicked: (eventId: number) => Promise<void>
   confirm: (eventId: number) => Promise<void>
   release: (eventId: number) => Promise<void>
@@ -98,6 +99,32 @@ export const useSeatStore = create<SeatStore>((set, get) => ({
     } else {
       set({ selected: [...selected, seatId] })
     }
+  },
+
+  // Buy ticket: hold the picked seats and confirm them straight away.
+  // The server still holds first (that is what stops two people taking the same seat).
+  buy: async (eventId) => {
+    set({ busy: true, error: "" })
+    let heldId: number | null = null
+    try {
+      const held = await holdSeats(eventId, get().selected)
+      heldId = held.id
+      await confirmBooking(held.id)
+      set({ confirmed: true, selected: [] })
+    } catch (error) {
+      set({ error: messageOf(error, "Could not buy these tickets.") })
+      if (heldId !== null) {
+        // the hold worked but the confirm did not: give the seats back
+        try {
+          await cancelBooking(heldId)
+        } catch {
+          // the hold will run out by itself
+        }
+      }
+      set({ selected: [] })
+    }
+    await get().refreshSeats(eventId)
+    set({ busy: false })
   },
 
   holdPicked: async (eventId) => {

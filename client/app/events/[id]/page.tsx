@@ -21,7 +21,7 @@ export default function EventPage() {
   const eventId = Number(params.id)
 
   const { event, seats, settings, selected, hold, confirmed, error, busy } = useSeatStore()
-  const { load, refreshSeats, toggleSeat, holdPicked, confirm, release, expire, reset } = useSeatStore()
+  const { load, refreshSeats, toggleSeat, buy, confirm, release, expire, reset } = useSeatStore()
 
   const isOrganizer = user?.role === "organizer"
   const role = user?.role
@@ -52,7 +52,7 @@ export default function EventPage() {
   const heldSeats = (seats ?? []).filter((seat) => seat.mine && seat.status === "held")
   const confirmedSeats = (seats ?? []).filter((seat) => seat.mine && seat.status === "booked")
 
-  const handleHold = () => holdPicked(eventId)
+  const handleBuy = () => buy(eventId)
   const handleConfirm = () => confirm(eventId)
   const handleRelease = () => release(eventId)
 
@@ -145,26 +145,25 @@ export default function EventPage() {
               ) : (
                 <>
                   <h2 className="text-3xl leading-none font-bold">Your seats</h2>
-                  <p className="mt-3 text-muted-foreground">
-                    {pickedSeats.length === 0
-                      ? `Pick up to ${maxSeats} seats on the map.`
-                      : `${pickedSeats.length} of ${maxSeats} picked.`}
-                  </p>
-                  <p className="mt-5 min-h-7 text-lg">{pickedSeats.map(seatName).join(", ")}</p>
+                  {pickedSeats.length === 0 ? (
+                    <p className="mt-3 text-muted-foreground">Pick up to {maxSeats} seats on the map.</p>
+                  ) : (
+                    <p className="mt-5 flex items-baseline gap-3">
+                      <span className="font-heading text-5xl leading-none font-bold tabular-nums">
+                        {pickedSeats.length}
+                      </span>
+                      <span className="text-lg text-muted-foreground">
+                        {pickedSeats.length === 1 ? "seat picked" : "seats picked"}
+                      </span>
+                    </p>
+                  )}
                   <Button
-                    onClick={handleHold}
+                    onClick={handleBuy}
                     disabled={busy || pickedSeats.length === 0}
                     className="mt-6 h-12 w-full text-base"
                   >
-                    {pickedSeats.length > 0
-                      ? `Hold ${pickedSeats.length} ${pickedSeats.length === 1 ? "seat" : "seats"}`
-                      : "Hold seats"}
+                    {pickedSeats.length > 1 ? `Buy ${pickedSeats.length} tickets` : "Buy ticket"}
                   </Button>
-                  {settings && (
-                    <p className="mt-3 text-sm text-muted-foreground">
-                      Held seats stay yours for {settings.hold_duration_minutes} minutes.
-                    </p>
-                  )}
                 </>
               )}
 

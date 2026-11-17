@@ -96,9 +96,16 @@ function SeatButton({
       aria-label={`Seat ${name}, ${state}`}
       title={name}
       onClick={() => onToggle(seat.id)}
-      className={`aspect-square w-full rounded-t-lg rounded-b-sm outline-none transition-colors duration-150 focus-visible:ring-3 focus-visible:ring-ring/70 motion-reduce:transition-none ${colour} ${
+      className={`flex aspect-square w-full items-center justify-center rounded-t-lg rounded-b-sm outline-none transition-all duration-150 focus-visible:ring-3 focus-visible:ring-ring/70 motion-reduce:transition-none ${colour} ${
         canPick ? "cursor-pointer" : "cursor-not-allowed"
-      } ${seat.status === "booked" && isMine ? "ring-2 ring-primary/40 ring-offset-2 ring-offset-background" : ""}`}
-    />
+      } ${red ? "z-10 scale-110 shadow-[0_0_16px_-2px] shadow-primary/70 motion-reduce:scale-100" : ""} ${
+        seat.status === "booked" && isMine ? "ring-2 ring-primary/40 ring-offset-2 ring-offset-background" : ""
+      }`}
+    >
+      {/* the seat's own name, like D3, on seats that are yours (too small to read on a phone) */}
+      {red && (
+        <span className="hidden text-[11px] leading-none font-bold text-primary-foreground sm:block">{name}</span>
+      )}
+    </button>
   )
 }
