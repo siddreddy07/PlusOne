@@ -2,6 +2,7 @@ import cors from "cors";
 import express from "express";
 import { checkDb } from "./config/db.js";
 import { authRoutes } from "./routes/authRoutes.js";
+import { settingsRoutes } from "./routes/settingsRoutes.js";
 
 export const app = express();
 
@@ -19,3 +20,4 @@ app.get("/health", async (_req, res) => {
 });
 
 app.use("/auth", authRoutes);
+app.use("/settings", settingsRoutes);
