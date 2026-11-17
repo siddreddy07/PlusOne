@@ -1,10 +1,9 @@
 import { app } from "./app.js";
-import { PORT } from "./config/env.js";
 import { getNow } from "./helpers/clock.js";
 import { releaseExpiredHolds } from "./services/holdService.js";
 
-app.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`);
+app.listen(process.env.PORT, () => {
+  console.log(`Server running on http://localhost:${process.env.PORT}`);
 });
 
 // Every 30 seconds, free the seats whose hold has run out.

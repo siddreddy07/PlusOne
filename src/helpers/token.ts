@@ -1,7 +1,9 @@
 import jwt from "jsonwebtoken";
-import { JWT_SECRET } from "../config/env.js";
 
 export type Role = "attendee" | "organizer";
+
+// Comes from .env.local (loaded by the npm scripts with --env-file)
+const JWT_SECRET = process.env.JWT_SECRET!;
 
 // What we store inside the token.
 export type TokenPayload = {
