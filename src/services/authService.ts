@@ -1,7 +1,6 @@
 import { eq } from "drizzle-orm";
 import { db } from "../config/db.js";
 import { users } from "../db/schema.js";
-import { makeHttpError } from "../helpers/httpError.js";
 import { checkPassword, hashPassword } from "../helpers/password.js";
 
 // Pick only the columns that are safe to send to the browser (no passwordHash).
@@ -22,7 +21,7 @@ export async function createUser(name: string, email: string, password: string) 
   // 1. Is the email already used?
   const existing = await db.select().from(users).where(eq(users.email, email));
   if (existing.length > 0) {
-    throw makeHttpError(409, "Email is already registered");
+    throw new Error("Email is already registered");
   }
 
   // 2. Save the new user
@@ -41,7 +40,7 @@ export async function loginUser(email: string, password: string) {
   const user = rows[0];
 
   if (!user || !(await checkPassword(password, user.passwordHash))) {
-    throw makeHttpError(401, "Wrong email or password");
+    throw new Error("Wrong email or password");
   }
 
   return { id: user.id, name: user.name, email: user.email, role: user.role };

@@ -1,5 +1,4 @@
 import type { NextFunction, Request, Response } from "express";
-import { makeHttpError } from "../helpers/httpError.js";
 import { readToken } from "../helpers/token.js";
 
 // Runs before protected routes. Expects:  Authorization: Bearer <token>
@@ -10,7 +9,7 @@ export function requireAuth(req: Request, res: Response, next: NextFunction) {
   const user = readToken(token);
 
   if (!user) {
-    return next(makeHttpError(401, "Please log in"));
+    return res.status(401).json({ error: "Please log in" });
   }
 
   res.locals.user = user;
