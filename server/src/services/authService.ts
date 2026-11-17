@@ -34,13 +34,16 @@ export async function createUser(name: string, email: string, password: string) 
   return rows[0]!;
 }
 
-// Check email + password. Same message for both mistakes, so nobody can guess emails.
+// Check email + password. Each mistake gets its own message, so the person knows what to fix.
 export async function loginUser(email: string, password: string) {
   const rows = await db.select().from(users).where(eq(users.email, email));
   const user = rows[0];
 
-  if (!user || !(await checkPassword(password, user.passwordHash))) {
-    throw new Error("Wrong email or password");
+  if (!user) {
+    throw new Error("No account found with this email");
+  }
+  if (!(await checkPassword(password, user.passwordHash))) {
+    throw new Error("Wrong password");
   }
 
   return { id: user.id, name: user.name, email: user.email, role: user.role };
